@@ -1,5 +1,7 @@
 module.exports = Storage
 
+var emptyBuffer = new Buffer(0)
+
 function Storage (chunkLength, opts) {
   if (!(this instanceof Storage)) return new Storage(chunkLength, opts)
   if (!opts) opts = {}
@@ -35,7 +37,7 @@ Storage.prototype.get = function (index, opts, cb) {
   if (typeof opts === 'function') return this.get(index, null, opts)
   if (this.closed) return nextTick(cb, new Error('Storage is closed'))
   var buf = this.chunks[index]
-  if (!buf) return nextTick(cb, new Error('Chunk not found'))
+  if (!buf) return nextTick(cb, null, emptyBuffer)
   if (!opts) return nextTick(cb, null, buf)
   var offset = opts.offset || 0
   var len = opts.length || (buf.length - offset)
