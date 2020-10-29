@@ -20,7 +20,7 @@ function Storage (chunkLength, opts) {
 Storage.prototype.put = function (index, buf, cb) {
   if (this.closed) return nextTick(cb, new Error('Storage is closed'))
 
-  var isLastChunk = (index === this.lastChunkIndex)
+  const isLastChunk = (index === this.lastChunkIndex)
   if (isLastChunk && buf.length !== this.lastChunkLength) {
     return nextTick(cb, new Error('Last chunk length must be ' + this.lastChunkLength))
   }
@@ -34,15 +34,15 @@ Storage.prototype.put = function (index, buf, cb) {
 Storage.prototype.get = function (index, opts, cb) {
   if (typeof opts === 'function') return this.get(index, null, opts)
   if (this.closed) return nextTick(cb, new Error('Storage is closed'))
-  var buf = this.chunks[index]
+  const buf = this.chunks[index]
   if (!buf) {
-    var err = new Error('Chunk not found')
+    const err = new Error('Chunk not found')
     err.notFound = true
     return nextTick(cb, err)
   }
   if (!opts) return nextTick(cb, null, buf)
-  var offset = opts.offset || 0
-  var len = opts.length || (buf.length - offset)
+  const offset = opts.offset || 0
+  const len = opts.length || (buf.length - offset)
   nextTick(cb, null, buf.slice(offset, len + offset))
 }
 
