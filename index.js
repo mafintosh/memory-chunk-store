@@ -1,5 +1,7 @@
 module.exports = Storage
 
+const queueMicrotask = require('queue-microtask')
+
 function Storage (chunkLength, opts) {
   if (!(this instanceof Storage)) return new Storage(chunkLength, opts)
   if (!opts) opts = {}
@@ -59,7 +61,7 @@ Storage.prototype.close = Storage.prototype.destroy = function (cb) {
 }
 
 function nextTick (cb, err, val) {
-  process.nextTick(function () {
+  queueMicrotask(function () {
     if (cb) cb(err, val)
   })
 }
