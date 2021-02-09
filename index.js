@@ -41,8 +41,13 @@ Storage.prototype.get = function (index, opts, cb) {
     return nextTick(cb, err)
   }
   if (!opts) return nextTick(cb, null, buf)
+
   const offset = opts.offset || 0
   const len = opts.length || (buf.length - offset)
+
+  if (opts.offset === 0 && len === buf.length - offset) {
+    return nextTick(cb, null, buf)
+  }
   nextTick(cb, null, buf.slice(offset, len + offset))
 }
 
