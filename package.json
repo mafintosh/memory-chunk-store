@@ -7,12 +7,12 @@
     "url": "https://github.com/mafintosh/memory-chunk-store/issues"
   },
   "dependencies": {
-    "queue-microtask": "^1.2.2"
+    "queue-microtask": "^1.2.3"
   },
   "devDependencies": {
-    "abstract-chunk-store": "^1.0.0",
+    "abstract-chunk-store": "^1.4.0",
     "standard": "*",
-    "tape": "^4.1.0"
+    "tape": "^5.2.2"
   },
   "homepage": "https://github.com/mafintosh/memory-chunk-store",
   "keywords": [
