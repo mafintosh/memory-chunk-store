@@ -19,7 +19,7 @@ function Storage (chunkLength, opts) {
   }
 }
 
-Storage.prototype.put = function (index, buf, cb) {
+Storage.prototype.put = function (index, buf, cb = () => {}) {
   if (this.closed) return nextTick(cb, new Error('Storage is closed'))
 
   const isLastChunk = (index === this.lastChunkIndex)
@@ -33,7 +33,7 @@ Storage.prototype.put = function (index, buf, cb) {
   nextTick(cb, null)
 }
 
-Storage.prototype.get = function (index, opts, cb) {
+Storage.prototype.get = function (index, opts, cb = () => {}) {
   if (typeof opts === 'function') return this.get(index, null, opts)
   if (this.closed) return nextTick(cb, new Error('Storage is closed'))
   const buf = this.chunks[index]
@@ -47,13 +47,14 @@ Storage.prototype.get = function (index, opts, cb) {
   const offset = opts.offset || 0
   const len = opts.length || (buf.length - offset)
 
-  if (opts.offset === 0 && len === buf.length - offset) {
-    return nextTick(cb, null, buf)
+  if (offset === 0 && len === buf.length) {
+    nextTick(cb, null, buf)
+  } else {
+    nextTick(cb, null, buf.slice(offset, len + offset))
   }
-  nextTick(cb, null, buf.slice(offset, len + offset))
 }
 
-Storage.prototype.close = Storage.prototype.destroy = function (cb) {
+Storage.prototype.close = Storage.prototype.destroy = function (cb = () => {}) {
   if (this.closed) return nextTick(cb, new Error('Storage is closed'))
   this.closed = true
   this.chunks = null
@@ -61,7 +62,5 @@ Storage.prototype.close = Storage.prototype.destroy = function (cb) {
 }
 
 function nextTick (cb, err, val) {
-  queueMicrotask(function () {
-    if (cb) cb(err, val)
-  })
+  queueMicrotask(() => cb(err, val))
 }
