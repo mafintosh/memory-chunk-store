@@ -47,10 +47,11 @@ Storage.prototype.get = function (index, opts, cb) {
   const offset = opts.offset || 0
   const len = opts.length || (buf.length - offset)
 
-  if (opts.offset === 0 && len === buf.length - offset) {
-    return nextTick(cb, null, buf)
+  if (offset === 0 && len === buf.length) {
+    nextTick(cb, null, buf)
+  } else {
+    nextTick(cb, null, buf.slice(offset, len + offset))
   }
-  nextTick(cb, null, buf.slice(offset, len + offset))
 }
 
 Storage.prototype.close = Storage.prototype.destroy = function (cb) {
