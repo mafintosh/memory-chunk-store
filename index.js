@@ -36,22 +36,25 @@ Storage.prototype.put = function (index, buf, cb = () => {}) {
 Storage.prototype.get = function (index, opts, cb = () => {}) {
   if (typeof opts === 'function') return this.get(index, null, opts)
   if (this.closed) return queueMicrotask(() => cb(new Error('Storage is closed')))
-  const buf = this.chunks[index]
+
+  let buf = this.chunks[index]
+
   if (!buf) {
     const err = new Error('Chunk not found')
     err.notFound = true
     return queueMicrotask(() => cb(err))
   }
-  if (!opts) return queueMicrotask(() => cb(null, buf))
+
+  if (!opts) opts = {}
 
   const offset = opts.offset || 0
   const len = opts.length || (buf.length - offset)
 
-  if (offset === 0 && len === buf.length) {
-    queueMicrotask(() => cb(null, buf))
-  } else {
-    queueMicrotask(() => cb(null, buf.slice(offset, len + offset)))
+  if (offset !== 0 || len !== buf.length) {
+    buf = buf.slice(offset, len + offset)
   }
+
+  queueMicrotask(() => cb(null, buf))
 }
 
 Storage.prototype.close = Storage.prototype.destroy = function (cb = () => {}) {
