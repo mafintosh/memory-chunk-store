@@ -20,47 +20,43 @@ function Storage (chunkLength, opts) {
 }
 
 Storage.prototype.put = function (index, buf, cb = () => {}) {
-  if (this.closed) return nextTick(cb, new Error('Storage is closed'))
+  if (this.closed) return queueMicrotask(() => cb(new Error('Storage is closed')))
 
   const isLastChunk = (index === this.lastChunkIndex)
   if (isLastChunk && buf.length !== this.lastChunkLength) {
-    return nextTick(cb, new Error('Last chunk length must be ' + this.lastChunkLength))
+    return queueMicrotask(() => cb(new Error('Last chunk length must be ' + this.lastChunkLength)))
   }
   if (!isLastChunk && buf.length !== this.chunkLength) {
-    return nextTick(cb, new Error('Chunk length must be ' + this.chunkLength))
+    return queueMicrotask(() => cb(new Error('Chunk length must be ' + this.chunkLength)))
   }
   this.chunks[index] = buf
-  nextTick(cb, null)
+  queueMicrotask(() => cb(null))
 }
 
 Storage.prototype.get = function (index, opts, cb = () => {}) {
   if (typeof opts === 'function') return this.get(index, null, opts)
-  if (this.closed) return nextTick(cb, new Error('Storage is closed'))
+  if (this.closed) return queueMicrotask(() => cb(new Error('Storage is closed')))
   const buf = this.chunks[index]
   if (!buf) {
     const err = new Error('Chunk not found')
     err.notFound = true
-    return nextTick(cb, err)
+    return queueMicrotask(() => cb(err))
   }
-  if (!opts) return nextTick(cb, null, buf)
+  if (!opts) return queueMicrotask(() => cb(null, buf))
 
   const offset = opts.offset || 0
   const len = opts.length || (buf.length - offset)
 
   if (offset === 0 && len === buf.length) {
-    nextTick(cb, null, buf)
+    queueMicrotask(() => cb(null, buf))
   } else {
-    nextTick(cb, null, buf.slice(offset, len + offset))
+    queueMicrotask(() => cb(null, buf.slice(offset, len + offset)))
   }
 }
 
 Storage.prototype.close = Storage.prototype.destroy = function (cb = () => {}) {
-  if (this.closed) return nextTick(cb, new Error('Storage is closed'))
+  if (this.closed) return queueMicrotask(() => cb(new Error('Storage is closed')))
   this.closed = true
   this.chunks = null
-  nextTick(cb, null)
-}
-
-function nextTick (cb, err, val) {
-  queueMicrotask(() => cb(err, val))
+  queueMicrotask(() => cb(null))
 }
